@@ -16,9 +16,9 @@ export function LandingContent() {
       </p>
 
       {/* CTA */}
-      <Link href="/login" className="mt-10">
+      <Link href="/home" className="mt-10">
         <Button size="lg" className="gap-2 rounded-md px-8 py-6 text-base font-semibold uppercase tracking-wide">
-          Start Shopping
+          Get Started
           <ArrowRight className="h-5 w-5" />
         </Button>
       </Link>

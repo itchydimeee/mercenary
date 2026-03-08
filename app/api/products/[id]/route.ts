@@ -1,4 +1,4 @@
-import { createClient } from "@/lib/supabase/server";
+import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
 
 export async function GET(
@@ -6,16 +6,20 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   const { id } = await params;
-  const supabase = await createClient();
-  const { data, error } = await supabase
-    .from("products")
-    .select("*")
-    .eq("id", id)
-    .single();
 
-  if (error) {
-    return NextResponse.json({ error: error.message }, { status: 404 });
+  try {
+    const product = await prisma.product.findUnique({
+      where: { id },
+      include: { variants: { orderBy: { size: "asc" } } },
+    });
+
+    if (!product) {
+      return NextResponse.json({ error: "Product not found." }, { status: 404 });
+    }
+
+    return NextResponse.json({ ...product, price: Number(product.price) });
+  } catch (err) {
+    console.error("[GET /api/products/:id]", err);
+    return NextResponse.json({ error: "Failed to fetch product." }, { status: 500 });
   }
-
-  return NextResponse.json(data);
 }

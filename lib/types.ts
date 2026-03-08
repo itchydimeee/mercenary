@@ -1,11 +1,17 @@
+export interface ProductVariant {
+  id: string;
+  product_id: string;
+  size: string;
+  stock: number;
+}
+
 export interface Product {
   id: string;
   name: string;
   description: string;
   price: number;
-  stock: number;
   image_url: string;
-  sizes: string[];
+  variants: ProductVariant[];
   created_at: string;
   updated_at: string;
 }

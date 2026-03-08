@@ -1,5 +1,33 @@
+import { prisma } from "@/lib/prisma";
 import { createClient } from "@/lib/supabase/server";
 import { NextResponse } from "next/server";
+
+export async function GET() {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    return NextResponse.json(
+      { error: "You must be signed in to view messages." },
+      { status: 401 }
+    );
+  }
+
+  try {
+    const messages = await prisma.message.findMany({
+      where: { user_id: user.id },
+      orderBy: { created_at: "desc" },
+      include: { product: { select: { name: true } } },
+    });
+
+    return NextResponse.json(messages);
+  } catch (err) {
+    console.error("[GET /api/messages]", err);
+    return NextResponse.json({ error: "Failed to fetch messages." }, { status: 500 });
+  }
+}
 
 export async function POST(request: Request) {
   const body = await request.json();
@@ -22,9 +50,8 @@ export async function POST(request: Request) {
     );
   }
 
+  // Require auth to send messages (Supabase handles session / Google OAuth)
   const supabase = await createClient();
-
-  // Require auth to send messages
   const {
     data: { user },
   } = await supabase.auth.getUser();
@@ -36,16 +63,19 @@ export async function POST(request: Request) {
     );
   }
 
-  const { error } = await supabase.from("messages").insert({
-    user_id: user.id,
-    product_id: product_id ?? null,
-    message,
-    status: "pending",
-  });
+  try {
+    await prisma.message.create({
+      data: {
+        user_id: user.id,
+        product_id: product_id ?? null,
+        message,
+        status: "pending",
+      },
+    });
 
-  if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json({ success: true }, { status: 201 });
+  } catch (err) {
+    console.error("[POST /api/messages]", err);
+    return NextResponse.json({ error: "Failed to send message." }, { status: 500 });
   }
-
-  return NextResponse.json({ success: true }, { status: 201 });
 }

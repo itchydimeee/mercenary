@@ -5,7 +5,6 @@ import Image from "next/image";
 import Link from "next/link";
 import { ArrowLeft, MessageCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import type { Product } from "@/lib/types";
 
@@ -104,9 +103,6 @@ export function ProductDetailContent({ productId, isAuthed }: ProductDetailConte
           <p className="text-2xl font-semibold">
             ₱{product.price.toLocaleString()}
           </p>
-          <p className="text-muted-foreground">
-            Stock: {product.stock > 0 ? product.stock : "Out of stock"}
-          </p>
 
           <Separator />
 
@@ -114,17 +110,27 @@ export function ProductDetailContent({ productId, isAuthed }: ProductDetailConte
             {product.description}
           </p>
 
-          {/* Sizes */}
-          {product.sizes && product.sizes.length > 0 && (
+          {/* Sizes & Stock */}
+          {product.variants && product.variants.length > 0 && (
             <div className="space-y-2">
               <p className="text-sm font-semibold uppercase tracking-wide">
                 Available Sizes
               </p>
               <div className="flex flex-wrap gap-2">
-                {product.sizes.map((size) => (
-                  <Badge key={size} variant="outline" className="px-3 py-1">
-                    {size}
-                  </Badge>
+                {product.variants.map((v) => (
+                  <div
+                    key={v.size}
+                    className={`flex flex-col items-center rounded-md border px-3 py-2 text-sm ${
+                      v.stock === 0
+                        ? "border-muted bg-muted/30 opacity-50"
+                        : "border-border"
+                    }`}
+                  >
+                    <span className="font-semibold">{v.size}</span>
+                    <span className="text-xs text-muted-foreground">
+                      {v.stock === 0 ? "Out of stock" : `${v.stock} left`}
+                    </span>
+                  </div>
                 ))}
               </div>
             </div>

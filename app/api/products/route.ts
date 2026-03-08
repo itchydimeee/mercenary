@@ -1,4 +1,4 @@
-import { createClient } from "@/lib/supabase/server";
+import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
 
 export async function GET(request: Request) {
@@ -6,16 +6,18 @@ export async function GET(request: Request) {
   const limitParam = searchParams.get("limit");
   const limit = limitParam ? parseInt(limitParam, 10) : 50;
 
-  const supabase = await createClient();
-  const { data, error } = await supabase
-    .from("products")
-    .select("*")
-    .order("created_at", { ascending: false })
-    .limit(limit);
+  try {
+    const products = await prisma.product.findMany({
+      orderBy: { created_at: "desc" },
+      take: limit,
+      include: { variants: { orderBy: { size: "asc" } } },
+    });
 
-  if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json(
+      products.map((p) => ({ ...p, price: Number(p.price) }))
+    );
+  } catch (err) {
+    console.error("[GET /api/products]", err);
+    return NextResponse.json({ error: "Failed to fetch products." }, { status: 500 });
   }
-
-  return NextResponse.json(data);
 }
