@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import { createClient } from "@/lib/supabase/server";
 import { Header } from "@/components/header";
 import { Footer } from "@/components/footer";
@@ -20,7 +21,9 @@ export default async function ContactPage() {
   return (
     <>
       <Header user={userData} />
-      <ContactContent user={userData} />
+      <Suspense>
+        <ContactContent user={userData} />
+      </Suspense>
       <Footer />
     </>
   );
