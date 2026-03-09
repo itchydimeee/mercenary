@@ -80,7 +80,7 @@ export function Header({ user }: HeaderProps) {
               </span>
             </SheetTrigger>
             <SheetContent side="right" className="w-72">
-              <nav className="mt-8 flex flex-col gap-4">
+              <nav className="mt-8 flex flex-col gap-4 px-4">
                 {navLinks.map((link) => (
                   <Link
                     key={link.href}

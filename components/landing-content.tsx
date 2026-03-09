@@ -6,7 +6,7 @@ export function LandingContent() {
   return (
     <main className="flex min-h-[calc(100vh-4rem)] flex-col items-center justify-center px-4 text-center">
       {/* Logo / Brand */}
-      <h1 className="text-5xl font-bold uppercase tracking-[0.3em] sm:text-6xl md:text-7xl lg:text-8xl">
+      <h1 className="text-4xl font-bold uppercase tracking-[0.2em] xs:text-5xl sm:text-6xl md:text-7xl lg:text-8xl">
         Mercenary
       </h1>
 
